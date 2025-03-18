@@ -1,19 +1,20 @@
 INSTALL_DIR := $(HOME)/.terraform-automation
 STATE_REPO := git@github.com:yourusername/terraform-state-storage.git
-LOCAL_STATE_DIR := $(HOME)/..terraform-state-backups
-SHELL_TYPE := $(shell basename $(SHELL))
+LOCAL_STATE_DIR := $(HOME)/.terraform-state-backups
+SHELL_TYPE := bash
 
 ifeq ($(SHELL_TYPE),bash)
-	SHELL_CONFIG := $(HOME)/.bashrc
-else ifeq ($(SHELL_TYPE))
-	SHELL_CONFIG := $(HOME)/.zshrc
-else ifeq ($(SHELL_TYPE))
-	SHELL_CONFIG := $(HOME)/.config/fish/config.fish
-else ifeq ($(SHELL_TYPE))
-	$(error Unsupported shell: $(SHELL_TYPE))
+    SHELL_CONFIG := $(HOME)/.bashrc
+else ifeq ($(SHELL_TYPE),zsh)
+    SHELL_CONFIG := $(HOME)/.zshrc
+else ifeq ($(SHELL_TYPE),fish)
+    SHELL_CONFIG := $(HOME)/.config/fish/config.fish
+else
+    SHELL_CONFIG :=
+    $(error Unsupported shell: $(SHELL_TYPE))
 endif
 
-.PHONY: install backup-alias sync-allias crontab-setup
+.PHONY: install backup-alias sync-alias crontab-setup
 
 install:
 	@echo "Creating installation directory..."
@@ -23,7 +24,7 @@ install:
 	@sed 's|STATE_REPO=.*|STATE_REPO=$(STATE_REPO)|; s|LOCAL_STATE_DIR=.*|LOCAL_STATE_DIR=$(LOCAL_STATE_DIR)|' terraform-sync.sh > $(INSTALL_DIR)/terraform-sync.sh
 	@chmod +x $(INSTALL_DIR)/terraform-wrapper.sh
 	@chmod +x $(INSTALL_DIR)/terraform-sync.sh
-	@echo "Cloning/updating state repo..."
+	@echo "Cloning or updating state repo..."
 	@if [ ! -d "$(LOCAL_STATE_DIR)/.git" ]; then \
 		git clone $(STATE_REPO) $(LOCAL_STATE_DIR); \
 	else \
