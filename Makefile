@@ -1,5 +1,5 @@
 INSTALL_DIR := $(HOME)/.terraform-automation
-STATE_REPO := git@github.com:yourusername/terraform-state-storage.git
+STATE_REPO := git@github.com:actuallypav/TFsync.git
 LOCAL_STATE_DIR := $(HOME)/.terraform-state-backups
 SHELL_TYPE := bash
 
