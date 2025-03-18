@@ -1,5 +1,5 @@
 INSTALL_DIR := $(HOME)/.terraform-automation
-STATE_REPO := git@github.com:actuallypav/TFsync.git
+STATE_REPO := FILL ME
 LOCAL_STATE_DIR := $(HOME)/.terraform-state-backups
 SHELL_TYPE := bash
 
@@ -33,7 +33,7 @@ install:
 	@$(MAKE) backup-alias
 	@$(MAKE) sync-alias
 	@$(MAKE) crontab-setup
-	@echo "✅ TF state sync setup complete!"
+	@echo "TF state sync setup complete!"
 
 backup-alias:
 	@echo "Adding terraform backup alias..."

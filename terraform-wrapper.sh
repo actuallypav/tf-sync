@@ -6,7 +6,7 @@ LOCAL_STATE_DIR="$HOME/.terraform-state-backups"
 
 # Get the name of the current project
 PROJECT_NAME=$(basename "$PWD")
-PROJECT_DIR="$PWD"  # Store the original directory
+PROJECT_DIRECTORY="$PWD"  # Store the original directory
 
 #ensure the local backup directory exists
 mkdir -p "$LOCAL_STATE_DIR"
@@ -20,19 +20,17 @@ else
     cd "$LOCAL_STATE_DIR" && git pull origin main
 fi
 
-#ensure project directory and backups folder exist
+#project directory and backups folder exist
 if [[ ! -d "$LOCAL_STATE_DIR/$PROJECT_NAME/backups" ]]; then
     echo "Creating backup directory for project '$PROJECT_NAME'..."
     mkdir -p "$LOCAL_STATE_DIR/$PROJECT_NAME/backups"
 fi
 
 #return to the Terraform project directory before running Terraform commands
-cd "$PROJECT_DIR"
-
-#run Terraform command
+cd "$PROJECT_DIRECTORY"
 terraform "$@"
 
-#list of commands that modify the TF state
+#commands that modify the TF state
 if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" || "$1" == "state" ]]; then
     TIMESTAMP=$(date +"%Y-%m-%d_%H-%M-%S")
     BACKUP_DIR="$LOCAL_STATE_DIR/$PROJECT_NAME/backups/$TIMESTAMP"
@@ -50,6 +48,6 @@ if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" || "$1" == "state
 
         echo "Terraform state successfully backed up to $STATE_REPO in $PROJECT_NAME folder."
     else
-        echo "⚠️ No terraform.tfstate file found. Backup skipped."
+        echo "No terraform.tfstate file found. Backup skipped."
     fi
 fi
