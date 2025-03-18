@@ -19,14 +19,13 @@ else
     git pull origin main
 fi
 
-#locate the latest state backup for the current project
-LATEST_STATE=$(ls -td "$LOCAL_STATE_DIR/$PROJECT_NAME/backups/"*/ | head -1)
-if [[ -z "$LATEST_STATE" ]]; then
-    echo "No state backup found for project $PROJECT_NAME."
-    exit 1
+#ensure the project directory exists in the state backup repo
+if [[ ! -d "$LOCAL_STATE_DIR/$PROJECT_NAME" ]]; then
+    echo "No backup directory found for project $PROJECT_NAME. Creating it..."
+    mkdir -p "$LOCAL_STATE_DIR/$PROJECT_NAME/backups"
 fi
 
 #copy latest state file into the current project
-cp "$LATEST_STATE/terraform.tfstate" "$PWD/terraform.tfstate"
+cp "$LOCAL_STATE_DIR/terraform.tfstate" "$PWD/terraform.tfstate"
 
 echo "TFstate successfully synced for $PROJECT_NAME."
