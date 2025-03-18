@@ -1,22 +1,21 @@
-# Terraform State Sync & Backup (`tf-sync-setup.sh`)
+# Terraform State Sync & Backup (`Makefile` Setup)
 
 ## Overview  
-This script automates **Terraform state backup and sync** using GitHub. It ensures:  
+This system automates **Terraform state backup and sync** using GitHub. It ensures:  
 - Automatic state backups on every `terraform apply`, `destroy`, etc.  
 - State sync from GitHub on system boot or when running `terraform-sync`.  
-- Easy deployment with a single script.  
+- Easy deployment using `make install`.  
 - **Support for multiple shells (Bash, Zsh, Fish)**
 
-**Note:** This script **does not support Windows**. It is designed for Linux and macOS systems.
+**Note:** This setup **does not support Windows**. It is designed for Linux and macOS systems.
 
 ---
 
 ## Installation  
-Run the following commands to install the Terraform state sync system:  
+Run the following command to install the Terraform state sync system:  
 
 ```bash
-chmod +x tf-sync-setup.sh
-./tf-sync-setup.sh <shell>
+make install SHELL_TYPE=<shell>
 ```
 
 Replace `<shell>` with one of:
@@ -24,7 +23,7 @@ Replace `<shell>` with one of:
 - `zsh` → for macOS (default shell)
 - `fish` → for Fish shell users
 
-If you don't specify a shell, the script will detect your current shell automatically.
+If you don't specify a shell, it will default to Bash.
 
 This will:  
 - Install Terraform wrapper (`terraform-wrapper.sh`)  
@@ -48,7 +47,7 @@ tf state mv ...
 tf state rm ...
 ```
 
-The script automatically backs up the Terraform state to a GitHub repository (`terraform-state-storage`).  
+The system automatically backs up the Terraform state to a GitHub repository (`terraform-state-storage`).  
 
 ---
 
