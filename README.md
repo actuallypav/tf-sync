@@ -12,6 +12,9 @@ This system automates **Terraform state backup and sync** using GitHub. It ensur
 ---
 
 ## Installation  
+
+Replace "FILL ME" in the makefile with your private repository ssh link (with a README).
+
 Run the following command to install the Terraform state sync system:  
 
 ```bash
