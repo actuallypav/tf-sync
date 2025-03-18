@@ -1,4 +1,4 @@
-# Terraform State Sync & Backup (`Makefile` Setup)
+# Terraform State Sync & Backup
 
 ## Overview  
 This system automates **Terraform state backup and sync** using GitHub. It ensures:  
