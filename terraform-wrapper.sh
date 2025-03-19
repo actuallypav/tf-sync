@@ -7,6 +7,7 @@ S3_BUCKET="$S3_BUCKET_TF"
 PROJECT_NAME=$(basename "$PWD")
 S3_STATE_FILE="s3://$S3_BUCKET/$PROJECT_NAME/terraform.tfstate"
 LOCAL_STATE_FILE="$PWD/terraform.tfstate"
+LOCAL_STATE_FILE_BACKUP="$PWD/terraform.tfstate.backup"
 
 # Ensure AWS CLI is installed
 if ! command -v aws &>/dev/null; then
@@ -53,6 +54,7 @@ if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" ]]; then
 
         # Delete local state file to prevent persistence
         rm -f "$LOCAL_STATE_FILE"
+        rm -f "$LOCAL_STATE_FILE_BACKUP"
         echo "Local Terraform state file removed."
     else
         echo "No local Terraform state file found. Nothing to upload."
