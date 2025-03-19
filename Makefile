@@ -1,6 +1,4 @@
 INSTALL_DIR := $(HOME)/.terraform-automation
-STATE_REPO := FILL ME
-LOCAL_STATE_DIR := $(HOME)/.terraform-state-backups
 SHELL_TYPE := bash
 
 ifeq ($(SHELL_TYPE),bash)
@@ -14,40 +12,32 @@ else
     $(error Unsupported shell: $(SHELL_TYPE))
 endif
 
-.PHONY: install backup-alias sync-alias crontab-setup
+.PHONY: install terraform-setup tfsave-alias
 
-install:
+install: terraform-setup tfsave-alias
 	@echo "Creating installation directory..."
 	@mkdir -p $(INSTALL_DIR)
 	@echo "Copying scripts..."
-	@sed 's|STATE_REPO=.*|STATE_REPO=$(STATE_REPO)|; s|LOCAL_STATE_DIR=.*|LOCAL_STATE_DIR=$(LOCAL_STATE_DIR)|' terraform-wrapper.sh > $(INSTALL_DIR)/terraform-wrapper.sh
-	@sed 's|STATE_REPO=.*|STATE_REPO=$(STATE_REPO)|; s|LOCAL_STATE_DIR=.*|LOCAL_STATE_DIR=$(LOCAL_STATE_DIR)|' terraform-sync.sh > $(INSTALL_DIR)/terraform-sync.sh
+	@cp terraform-wrapper.sh $(INSTALL_DIR)/terraform-wrapper.sh
 	@chmod +x $(INSTALL_DIR)/terraform-wrapper.sh
-	@chmod +x $(INSTALL_DIR)/terraform-sync.sh
-	@echo "Cloning or updating state repo..."
-	@if [ ! -d "$(LOCAL_STATE_DIR)/.git" ]; then \
-		git clone $(STATE_REPO) $(LOCAL_STATE_DIR); \
-	else \
-		cd $(LOCAL_STATE_DIR) && git pull origin main; \
-	fi
-	@$(MAKE) backup-alias
-	@$(MAKE) sync-alias
-	@$(MAKE) crontab-setup
-	@echo "TF state sync setup complete!"
+	@echo "Terraform automation setup complete!"
 
-backup-alias:
-	@echo "Adding terraform backup alias..."
+terraform-setup:
+	@echo "Initializing Terraform..."
+	@terraform init
+	@echo "Applying Terraform configuration to create S3 bucket..."
+	@terraform apply -auto-approve > tf_output.log
+	@echo "Extracting S3 bucket name..."
+	@BUCKET_NAME=$$(terraform output -raw s3_bucket_name); \
+		echo "S3 Bucket Name: $$BUCKET_NAME"; \
+		echo "export S3_BUCKET_TF=$$BUCKET_NAME" >> $(HOME)/.terraform-automation/env.sh
+	@echo "Terraform setup complete!"
+
+tfsave-alias:
+	@echo "Adding terraform alias..."
+	@if ! grep -q "source $(HOME)/.terraform-automation/env.sh" $(SHELL_CONFIG); then \
+		echo "source $(HOME)/.terraform-automation/env.sh" >> $(SHELL_CONFIG); \
+	fi
 	@if ! grep -q "alias terraform=" $(SHELL_CONFIG); then \
 		echo "alias terraform='$(INSTALL_DIR)/terraform-wrapper.sh'" >> $(SHELL_CONFIG); \
 	fi
-
-sync-alias:
-	@echo "Adding terraform sync alias..."
-	@if ! grep -q "alias terraform-sync=" $(SHELL_CONFIG); then \
-		echo "alias terraform-sync='$(INSTALL_DIR)/terraform-sync.sh'" >> $(SHELL_CONFIG); \
-	fi
-
-crontab-setup:
-	@echo "Ensuring terraform-sync runs at startup..."
-	@(crontab -l 2>/dev/null | grep -Fq "@reboot $(INSTALL_DIR)/terraform-sync.sh") || \
-	(crontab -l 2>/dev/null; echo "@reboot $(INSTALL_DIR)/terraform-sync.sh") | crontab -
