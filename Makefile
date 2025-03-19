@@ -12,14 +12,14 @@ else
     $(error Unsupported shell: $(SHELL_TYPE))
 endif
 
-.PHONY: install terraform-setup backup-alias
+.PHONY: install terraform-setup tfsave-alias
 
-install: terraform-setup backup-alias
+install: terraform-setup tfsave-alias
 	@echo "Creating installation directory..."
 	@mkdir -p $(INSTALL_DIR)
 	@echo "Copying scripts..."
-	@chmod +x terraform-wrapper.sh
 	@cp terraform-wrapper.sh $(INSTALL_DIR)/terraform-wrapper.sh
+	@chmod +x $(INSTALL_DIR)/terraform-wrapper.sh
 	@echo "Terraform automation setup complete!"
 
 terraform-setup:
@@ -30,11 +30,14 @@ terraform-setup:
 	@echo "Extracting S3 bucket name..."
 	@BUCKET_NAME=$$(terraform output -raw s3_bucket_name); \
 		echo "S3 Bucket Name: $$BUCKET_NAME"; \
-		sed -i "s|S3_BUCKET=.*|S3_BUCKET=\"$$BUCKET_NAME\"|" $(INSTALL_DIR)/terraform-wrapper.sh
+		echo "export S3_BUCKET_TF=$$BUCKET_NAME" >> $(HOME)/.terraform-automation/env.sh
 	@echo "Terraform setup complete!"
 
-backup-alias:
+tfsave-alias:
 	@echo "Adding terraform alias..."
+	@if ! grep -q "source $(HOME)/.terraform-automation/env.sh" $(SHELL_CONFIG); then \
+		echo "source $(HOME)/.terraform-automation/env.sh" >> $(SHELL_CONFIG); \
+	fi
 	@if ! grep -q "alias terraform=" $(SHELL_CONFIG); then \
 		echo "alias terraform='$(INSTALL_DIR)/terraform-wrapper.sh'" >> $(SHELL_CONFIG); \
 	fi
