@@ -8,6 +8,7 @@ This system automates **Terraform state backup and sync** using AWS S3. It ensur
 - **Support for multiple shells (Bash, Zsh, Fish)**
 
 **Note:** This setup **does not support Windows**. It is designed for Linux and macOS systems.
+Additionally, it does not use lock files - therefore multiple applies to the same files at the same time could cause issues.
 
 ---
 
