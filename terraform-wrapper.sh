@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Load environment variables
 source "$HOME/.terraform-automation/env.sh"
 
 S3_BUCKET="$S3_BUCKET_TF"
@@ -9,13 +8,11 @@ S3_STATE_FILE="s3://$S3_BUCKET/$PROJECT_NAME/terraform.tfstate"
 LOCAL_STATE_FILE="$PWD/terraform.tfstate"
 LOCAL_STATE_FILE_BACKUP="$PWD/terraform.tfstate.backup"
 
-# Ensure AWS CLI is installed
 if ! command -v aws &>/dev/null; then
     echo "AWS CLI not found. Please install and configure it."
     exit 1
 fi
 
-# Check if we need to fetch state (only for apply, destroy, import)
 if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" ]]; then
     if [[ ! -f "$LOCAL_STATE_FILE" ]]; then
         if aws s3 ls "$S3_STATE_FILE" &>/dev/null; then
@@ -29,17 +26,15 @@ if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" ]]; then
     fi
 fi
 
-# Run Terraform command
+
 terraform "$@"
 EXIT_CODE=$?
 
-# Handle Terraform failures
 if [[ $EXIT_CODE -ne 0 ]]; then
     echo "Terraform command failed with exit code $EXIT_CODE. Keeping local state file for debugging."
-    exit $EXIT_CODE  # Exit with the same error code as Terraform
+    exit $EXIT_CODE 
 fi
 
-# If Terraform modifies the state, ensure S3 state exists before upload
 if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" ]]; then
     if [[ -f "$LOCAL_STATE_FILE" ]]; then
         if ! aws s3 ls "$S3_STATE_FILE" &>/dev/null; then
@@ -52,7 +47,6 @@ if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" ]]; then
         echo "Uploading updated Terraform state to S3..."
         aws s3 cp "$LOCAL_STATE_FILE" "$S3_STATE_FILE"
 
-        # Delete local state file to prevent persistence
         rm -f "$LOCAL_STATE_FILE"
         rm -f "$LOCAL_STATE_FILE_BACKUP"
         echo "Local Terraform state file removed."
