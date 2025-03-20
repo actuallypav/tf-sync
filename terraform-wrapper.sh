@@ -13,7 +13,7 @@ if ! command -v aws &>/dev/null; then
     exit 1
 fi
 
-if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" ]]; then
+if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" || "$1" == "import" ]]; then
     if [[ ! -f "$LOCAL_STATE_FILE" ]]; then
         if aws s3 ls "$S3_STATE_FILE" &>/dev/null; then
             echo "Fetching latest Terraform state from S3..."
@@ -32,6 +32,10 @@ EXIT_CODE=$?
 
 if [[ $EXIT_CODE -ne 0 ]]; then
     echo "Terraform command failed with exit code $EXIT_CODE. Keeping local state file for debugging."
+    if [[ "$1" == "plan" ]]; then
+        echo "Cleaning up local state files due to failure in plan."
+        rm -f "$LOCAL_STATE_FILE" "$LOCAL_STATE_FILE_BACKUP"
+    fi
     exit $EXIT_CODE 
 fi
 
