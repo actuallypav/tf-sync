@@ -41,16 +41,17 @@ fi
 
 if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" || "$1" == "plan" ]]; then
     if [[ -f "$LOCAL_STATE_FILE" ]]; then
-        if ! aws s3 ls "$S3_STATE_FILE" &>/dev/null; then
-            echo "Creating empty Terraform state file in S3..."
-            touch temp-empty.tfstate
-            aws s3 cp temp-empty.tfstate "$S3_STATE_FILE"
-            rm temp-empty.tfstate
+        if [[ "$1" != "plan" ]]; then
+            if ! aws s3 ls "$S3_STATE_FILE" &>/dev/null; then
+                echo "Creating empty Terraform state file in S3..."
+                touch temp-empty.tfstate
+                aws s3 cp temp-empty.tfstate "$S3_STATE_FILE"
+                rm temp-empty.tfstate
+            fi
+
+            echo "Uploading updated Terraform state to S3..."
+            aws s3 cp "$LOCAL_STATE_FILE" "$S3_STATE_FILE"
         fi
-
-        echo "Uploading updated Terraform state to S3..."
-        aws s3 cp "$LOCAL_STATE_FILE" "$S3_STATE_FILE"
-
         rm -f "$LOCAL_STATE_FILE"
         rm -f "$LOCAL_STATE_FILE_BACKUP"
         echo "Local Terraform state file removed."
