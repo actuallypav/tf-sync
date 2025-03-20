@@ -39,7 +39,7 @@ if [[ $EXIT_CODE -ne 0 ]]; then
     exit $EXIT_CODE 
 fi
 
-if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" ]]; then
+if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" || "$1" == "plan" ]]; then
     if [[ -f "$LOCAL_STATE_FILE" ]]; then
         if ! aws s3 ls "$S3_STATE_FILE" &>/dev/null; then
             echo "Creating empty Terraform state file in S3..."
