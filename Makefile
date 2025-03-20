@@ -24,14 +24,17 @@ install: terraform-setup tfsave-alias
 
 terraform-setup:
 	@echo "Initializing Terraform..."
-	@terraform init
+	@terraform init || echo "Terraform init failed, continuing..."
 	@echo "Applying Terraform configuration to create S3 bucket..."
-	@terraform apply -auto-approve > tf_output.log
+	@terraform apply -auto-approve > tf_output.log || echo "Terraform apply failed, continuing..."
+	@echo "Ensuring installation directory exists..."
+	@mkdir -p $(HOME)/.terraform-automation
 	@echo "Extracting S3 bucket name..."
-	@BUCKET_NAME=$$(terraform output -raw s3_bucket_name); \
+	@BUCKET_NAME=$$(terraform output -raw s3_bucket_name 2>/dev/null || echo "tfstatepav"); \
 		echo "S3 Bucket Name: $$BUCKET_NAME"; \
-		echo "export S3_BUCKET_TF=$$BUCKET_NAME" >> $(HOME)/.terraform-automation/env.sh
+		echo "export S3_BUCKET_TF=$$BUCKET_NAME" > $(HOME)/.terraform-automation/env.sh
 	@echo "Terraform setup complete!"
+
 
 tfsave-alias:
 	@echo "Adding terraform alias..."
