@@ -13,7 +13,7 @@ if ! command -v aws &>/dev/null; then
     exit 1
 fi
 
-if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" || "$1" == "import" ]]; then
+if [[ "$1" == "apply" || "$1" == "destroy" || "$1" == "import" || "$1" == "plan" ]]; then
     if [[ ! -f "$LOCAL_STATE_FILE" ]]; then
         if aws s3 ls "$S3_STATE_FILE" &>/dev/null; then
             echo "Fetching latest Terraform state from S3..."
