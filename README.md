@@ -13,9 +13,9 @@ Run the following command to install the Terraform state sync system:
 make install SHELL_TYPE=<shell>
 ```
 Replace `<shell>` with one of:
-- `bash` &rarr for Linux (default shell on many distributions)
-- `zsh` &rarr for macOS (default shell)
-- `fish` &rarr for Fish shell users
+- `bash` &rarr; for Linux (default shell on many distributions)
+- `zsh` &rarr; for macOS (default shell)
+- `fish` &rarr; for Fish shell users
 If you don't specify a shell, it will default to Bash.
 This will:  
 - Install Terraform wrapper (`terraform-wrapper.sh`)  
