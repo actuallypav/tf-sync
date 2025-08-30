@@ -16,7 +16,10 @@ Replace `<shell>` with one of:
 - `bash` &rarr; for Linux (default shell on many distributions)
 - `zsh` &rarr; for macOS (default shell)
 - `fish` &rarr; for Fish shell users
-If you don't specify a shell, it will default to Bash.
+
+> [!IMPORTANT]
+> If a shell is not specified, the script will default to Bash
+
 This will:  
 - Install Terraform wrapper (`terraform-wrapper.sh`)  
 - Set up aliases (`terraform → wrapper`)  
